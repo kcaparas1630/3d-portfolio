@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Lighthouse reports
+lighthouse-report.html
+lighthouse-dev-report.html
+*.lighthouse.*.html
