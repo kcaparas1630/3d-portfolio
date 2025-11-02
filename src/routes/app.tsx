@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import App from '../App'
-import LoadingScreen from '../Common/View/LoadingScreen'
+import LoadingScreen from '../common/view/LoadingScreen'
 import { useGLTF } from '@react-three/drei'
 
 const MIN_LOADING_TIME = 10000; // 10 seconds

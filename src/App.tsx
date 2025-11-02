@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Suspense } from 'react'
-import Model from './Models/Character/Model'
+import Model from './models/character/Model'
 
 
 const App = () => {
