@@ -1,14 +1,28 @@
 import { useFrame } from "@react-three/fiber";
-import { useFBX } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import { useEffect, useRef, useState } from "react";
 import { AnimationMixer, AnimationAction, Group, Mesh, MeshStandardMaterial } from "three";
 
 const Model = () => {
-  const walkingFbx = useFBX("/Character/Animations/Animation_Walking_withSkin.fbx");
-  const idleFbx = useFBX("/Character/Animations/Animation_Idle_02_withSkin.fbx");
-  const secondIdleFbx = useFBX("/Character/Animations/Animation_Idle_03_withSkin.fbx");
-  const mixer = useRef<AnimationMixer | null>(null);
+  const walkingGltf = useGLTF("/Character/Animations/Animation_Walking_withSkin_draco.glb");
+  const idleGltf = useGLTF("/Character/Animations/Animation_Idle_02_withSkin_draco.glb");
+  const secondIdleGltf = useGLTF("/Character/Animations/Animation_Idle_03_withSkin_draco.glb");
+
+  const mixersRef = useRef<{
+    idle1: AnimationMixer | null;
+    idle2: AnimationMixer | null;
+    walking: AnimationMixer | null;
+  }>({
+    idle1: null,
+    idle2: null,
+    walking: null,
+  });
+
   const groupRef = useRef<Group>(null);
+  const idle1Ref = useRef<Group>(null);
+  const idle2Ref = useRef<Group>(null);
+  const walkingRef = useRef<Group>(null);
+
   const [keys, setKeys] = useState({
     forward: false,
     backward: false,
@@ -29,26 +43,28 @@ const Model = () => {
   const currentIdleRef = useRef<"idle1" | "idle2">("idle1");
 
   useEffect(() => {
-    if (walkingFbx.animations.length > 0) {
-      mixer.current = new AnimationMixer(walkingFbx);
-      actionsRef.current.walking = mixer.current.clipAction(
-        walkingFbx.animations[0]
+    // Setup mixers and actions for all animations
+    mixersRef.current.idle1 = new AnimationMixer(idleGltf.scene);
+    mixersRef.current.idle2 = new AnimationMixer(secondIdleGltf.scene);
+    mixersRef.current.walking = new AnimationMixer(walkingGltf.scene);
+
+    if (idleGltf.animations && idleGltf.animations.length > 0) {
+      actionsRef.current.idle1 = mixersRef.current.idle1.clipAction(
+        idleGltf.animations[0]
       );
+      actionsRef.current.idle1.play();
+    }
 
-      if (idleFbx.animations.length > 0) {
-        actionsRef.current.idle1 = mixer.current.clipAction(
-          idleFbx.animations[0]
-        );
-      }
+    if (secondIdleGltf.animations && secondIdleGltf.animations.length > 0) {
+      actionsRef.current.idle2 = mixersRef.current.idle2.clipAction(
+        secondIdleGltf.animations[0]
+      );
+    }
 
-      if (secondIdleFbx.animations.length > 0) {
-        actionsRef.current.idle2 = mixer.current.clipAction(
-          secondIdleFbx.animations[0]
-        );
-      }
-
-      // Start with first idle animation
-      actionsRef.current.idle1?.play();
+    if (walkingGltf.animations && walkingGltf.animations.length > 0) {
+      actionsRef.current.walking = mixersRef.current.walking.clipAction(
+        walkingGltf.animations[0]
+      );
     }
 
     // Fix material properties for all models
@@ -70,9 +86,14 @@ const Model = () => {
       });
     };
 
-    fixMaterials(walkingFbx);
-    fixMaterials(idleFbx);
-    fixMaterials(secondIdleFbx);
+    fixMaterials(idleGltf.scene);
+    fixMaterials(secondIdleGltf.scene);
+    fixMaterials(walkingGltf.scene);
+
+    // Set initial visibility
+    if (idle1Ref.current) idle1Ref.current.visible = true;
+    if (idle2Ref.current) idle2Ref.current.visible = false;
+    if (walkingRef.current) walkingRef.current.visible = false;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowUp") setKeys((k) => ({ ...k, forward: true }));
@@ -95,10 +116,13 @@ const Model = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [walkingFbx, idleFbx, secondIdleFbx]);
+  }, [walkingGltf, idleGltf, secondIdleGltf]);
 
   useFrame((_state, delta) => {
-    mixer.current?.update(delta);
+    // Update all mixers
+    mixersRef.current.idle1?.update(delta);
+    mixersRef.current.idle2?.update(delta);
+    mixersRef.current.walking?.update(delta);
 
     if (groupRef.current) {
       const moveSpeed = 2 * delta;
@@ -114,13 +138,17 @@ const Model = () => {
 
           // Switch to the other idle animation
           if (currentIdleRef.current === "idle1") {
-            actionsRef.current.idle1?.fadeOut(0.3);
-            actionsRef.current.idle2?.reset().fadeIn(0.3).play();
+            // Switch to idle2
+            if (idle1Ref.current) idle1Ref.current.visible = false;
+            if (idle2Ref.current) idle2Ref.current.visible = true;
+            actionsRef.current.idle2?.reset().play();
             currentIdleRef.current = "idle2";
             currentActionRef.current = "idle2";
           } else {
-            actionsRef.current.idle2?.fadeOut(0.3);
-            actionsRef.current.idle1?.reset().fadeIn(0.3).play();
+            // Switch back to idle1
+            if (idle2Ref.current) idle2Ref.current.visible = false;
+            if (idle1Ref.current) idle1Ref.current.visible = true;
+            actionsRef.current.idle1?.reset().play();
             currentIdleRef.current = "idle1";
             currentActionRef.current = "idle1";
           }
@@ -128,29 +156,19 @@ const Model = () => {
       }
 
       // Switch between idle and walking animations
-      if (
-        isMoving &&
-        currentActionRef.current !== "walking" &&
-        actionsRef.current.walking
-      ) {
-        // Fade out current idle animation
-        if (currentIdleRef.current === "idle1") {
-          actionsRef.current.idle1?.fadeOut(0.3);
-        } else {
-          actionsRef.current.idle2?.fadeOut(0.3);
-        }
-        actionsRef.current.walking.reset().fadeIn(0.3).play();
+      if (isMoving && currentActionRef.current !== "walking") {
+        // Switch to walking
+        if (idle1Ref.current) idle1Ref.current.visible = false;
+        if (idle2Ref.current) idle2Ref.current.visible = false;
+        if (walkingRef.current) walkingRef.current.visible = true;
+        actionsRef.current.walking?.reset().play();
         currentActionRef.current = "walking";
         idleTimerRef.current = 0; // Reset timer
-        currentIdleRef.current = "idle1"; // Reset to idle1 when moving
-      } else if (
-        !isMoving &&
-        currentActionRef.current === "walking" &&
-        actionsRef.current.walking
-      ) {
-        actionsRef.current.walking.fadeOut(0.3);
+      } else if (!isMoving && currentActionRef.current === "walking") {
         // Always return to idle1 after walking
-        actionsRef.current.idle1?.reset().fadeIn(0.3).play();
+        if (walkingRef.current) walkingRef.current.visible = false;
+        if (idle1Ref.current) idle1Ref.current.visible = true;
+        actionsRef.current.idle1?.reset().play();
         currentActionRef.current = "idle1";
         currentIdleRef.current = "idle1";
         idleTimerRef.current = 0; // Reset timer to start fresh
@@ -178,7 +196,15 @@ const Model = () => {
 
   return (
     <group ref={groupRef}>
-      <primitive object={walkingFbx} scale={0.01} />
+      <group ref={idle1Ref}>
+        <primitive object={idleGltf.scene} scale={1} />
+      </group>
+      <group ref={idle2Ref}>
+        <primitive object={secondIdleGltf.scene} scale={1} />
+      </group>
+      <group ref={walkingRef}>
+        <primitive object={walkingGltf.scene} scale={1} />
+      </group>
     </group>
   );
 };
