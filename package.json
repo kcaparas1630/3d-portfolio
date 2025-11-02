@@ -15,6 +15,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.6",
     "@react-three/fiber": "^9.4.0",
+    "@tanstack/react-router": "^1.134.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "three": "^0.180.0",
@@ -22,6 +23,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@tanstack/router-devtools": "^1.134.4",
+    "@tanstack/router-plugin": "^1.134.6",
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
