@@ -27,3 +27,6 @@ dist-ssr
 lighthouse-report.html
 lighthouse-dev-report.html
 *.lighthouse.*.html
+
+# TanStack Router
+routeTree.gen.ts
