@@ -1,0 +1,363 @@
+.intro-banner {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ADD1F5;
+}
+.intro-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.intro-banner h1 {
+    font-size: 6rem;
+    margin: 0;
+}
+
+.intro-banner p {
+    font-size: 2rem;
+    margin: 10px 0 0 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 24px;
+    margin-top: 60px;
+}
+
+.button-group button {
+    position: relative;
+    background: #A776F5;
+    width: 160px;
+    height: 80px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-group button::before {
+    content: '';
+    position: absolute;
+    border-radius: 12px;
+    background: #4B25B2;
+    width: 160px;
+    height: 80px;
+    z-index: -1;
+    left: 0;
+    top: 8px;
+}
+
+.button-group button::after {
+    content: '';
+    position: absolute;
+    border-radius: 12px;
+    background: #041661;
+    width: 144px;
+    height: 64px;
+    left: 0;
+    right: 0;
+    top: 8px;
+    margin: 0 auto;
+    transition: all 150ms ease-out;
+}
+
+.button-group button:hover::after {
+    top: 0;
+}
+
+.button-inner-shadow {
+    position: relative;
+    background: rgba(4, 22, 97, 0.2);
+    width: 144px;
+    height: 64px;
+    border-radius: 12px;
+    margin: 0 -10px;
+}
+
+.button-white-base {
+    position: absolute;
+    top: -0.1em;
+    background: white;
+    width: 160px;
+    height: 80px;
+    border-radius: 12px;
+    margin: 0 auto;
+    z-index: -2;
+    left: 0;
+    right: 0;
+}
+
+.button-top-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+}
+
+.button-main {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    background: #FFB20F;
+    width: 90%;
+    height: 54px;
+    border-radius: 12px;
+    border: 2px solid #CB6329;
+    box-shadow: 0 0 0 1px #CB6329;
+    overflow: hidden;
+    margin: 0 auto;
+    top: 8px;
+    z-index: 2;
+    transition: all 150ms ease-out;
+}
+
+.button-group button:hover .button-main {
+    top: -8px;
+}
+
+.button-main::before {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    width: 0.6em;
+    height: 0.6em;
+    border-top-left-radius: 45%;
+    border-top-right-radius: 80%;
+    border-bottom-left-radius: 72%;
+    border-bottom-right-radius: 45%;
+    bottom: 0.21em;
+    left: 0.21em;
+    z-index: 1;
+}
+
+.button-main::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    width: 0.35em;
+    height: 0.35em;
+    border-top-left-radius: 45%;
+    border-top-right-radius: 72%;
+    border-bottom-left-radius: 80%;
+    border-bottom-right-radius: 45%;
+    top: 0.21em;
+    right: 0.21em;
+    z-index: 1;
+}
+
+.button-yellow-top {
+    position: absolute;
+    top: 0.1em;
+    background: #FCD425;
+    width: 100%;
+    height: 64px;
+    max-height: 50%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin: 0 auto;
+}
+
+.button-yellow-top::after {
+    content: '';
+    position: absolute;
+    background: white;
+    width: 100%;
+    height: 64px;
+    max-height: 50%;
+    top: -0.1em;
+    z-index: -1;
+    left: 0;
+}
+
+.button-text {
+    align-self: center;
+    font-size: 1.3rem;
+    text-align: center;
+    font-family: 'Wheaton Capitals', sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: white;
+    text-shadow: 0 2px 2px rgba(203, 99, 41, 0.5);
+    z-index: 10;
+    position: relative;
+}
+
+.button-text::before {
+    content: attr(data-text);
+    position: absolute;
+    color: #5F360B;
+    z-index: -1;
+    top: 0.08em;
+    left: 0;
+    right: 0;
+}
+
+/* Sound toggle button */
+.sound-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(180deg, #FCD425 0%, #FFB800 100%);
+    border: 4px solid #FFFFFF;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #C08000;
+    transition: all 0.1s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.sound-toggle:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #C08000;
+}
+
+.sound-toggle:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #C08000;
+}
+
+/* Speaker icon container */
+.speaker-icon {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Speaker base rectangle */
+.speaker-base {
+    width: 8px;
+    height: 12px;
+    background: white;
+    border-radius: 2px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Speaker cone/triangle */
+.speaker-cone {
+    position: absolute;
+    left: 50%;
+    margin-left: -2px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid white;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+}
+
+/* Sound waves (when playing) */
+.sound-waves {
+    position: absolute;
+    right: 2px;
+    display: flex;
+    gap: 4px;
+}
+
+.sound-wave {
+    width: 3px;
+    border: 2px solid white;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+}
+
+.sound-wave:nth-child(1) {
+    height: 8px;
+}
+
+.sound-wave:nth-child(2) {
+    height: 12px;
+}
+
+.sound-wave:nth-child(3) {
+    height: 16px;
+}
+
+/* Muted state - X line */
+.sound-muted {
+    position: absolute;
+    width: 28px;
+    height: 3px;
+    background: white;
+    transform: rotate(45deg);
+    border-radius: 2px;
+}
+
+/* Landscape orientation warning for mobile */
+.orientation-warning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #ADD1F5;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+}
+
+.orientation-warning h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #041661;
+}
+
+.orientation-warning p {
+    font-size: 1.2rem;
+    color: #041661;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+
+    .intro-content {
+        margin-top: 50px;
+    }
+    .intro-banner h1 {
+        font-size: 3rem;
+    }
+
+    .intro-banner p {
+        font-size: 1.2rem;
+        padding: 0 20px;
+    }
+
+    .button-group {
+        flex-direction: row;
+        gap: 16px;
+        margin-top: 40px;
+    }
+
+    .sound-toggle {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        right: 15px;
+    }
+}
+
+/* Show orientation warning on mobile portrait mode */
+@media (max-width: 768px) and (orientation: portrait) {
+    .orientation-warning {
+        display: flex;
+    }
+
+    .intro-banner {
+        display: none;
+    }
+}
