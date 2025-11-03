@@ -3,7 +3,7 @@ import App from '../App'
 import LoadingScreen from '../common/view/LoadingScreen'
 import { useGLTF } from '@react-three/drei'
 
-const MIN_LOADING_TIME = 10000; // 10 seconds
+const MIN_LOADING_TIME = 5000; // 5 seconds
 
 export const Route = createFileRoute('/app')({
   component: App,
