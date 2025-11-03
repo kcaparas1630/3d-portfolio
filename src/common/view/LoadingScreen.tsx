@@ -1,29 +1,17 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, Text } from "@react-three/drei";
 import { useRef, useEffect, useState, Suspense } from "react";
-import { Group, AnimationMixer, Mesh, MeshStandardMaterial } from "three";
+import { Group, Mesh, MeshStandardMaterial } from "three";
 
 const RotatingGlobe = () => {
   const globeGltf = useGLTF(
-    "/Background/Miniature_World_Globe_1101040838_texture_draco.glb"
-  );
-  const characterGltf = useGLTF(
-    "/Character/Animations/Animation_Casual_Walk_withSkin_draco.glb"
+    "/Background/Miniature-Globe_draco.glb"
   );
   const groupRef = useRef<Group>(null);
-  const mixer = useRef<AnimationMixer | null>(null);
   const [dots, setDots] = useState("");
 
   useEffect(() => {
-    const loadStart = performance.now();
-
-    if (characterGltf.animations && characterGltf.animations.length > 0) {
-      mixer.current = new AnimationMixer(characterGltf.scene);
-      const action = mixer.current.clipAction(characterGltf.animations[0]);
-      action.play();
-    }
-
-    // Fix material properties for all models
+    // Fix material properties for globe
     const fixMaterials = (model: Group) => {
       model.traverse((child) => {
         if ((child as Mesh).isMesh) {
@@ -41,11 +29,9 @@ const RotatingGlobe = () => {
         }
       });
     };
-    fixMaterials(characterGltf.scene);
+    fixMaterials(globeGltf.scene);
 
-    const loadEnd = performance.now();
-    console.log(`3D Models loaded in ${(loadEnd - loadStart).toFixed(2)}ms`);
-  }, [characterGltf, globeGltf]);
+  }, [globeGltf]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,9 +42,8 @@ const RotatingGlobe = () => {
 
   useFrame((_state, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.5; // Clockwise rotation on z-axis
+      groupRef.current.rotation.y += delta * 0.5; // Clockwise rotation
     }
-    mixer.current?.update(delta);
   });
 
   return (
@@ -66,12 +51,6 @@ const RotatingGlobe = () => {
       <group ref={groupRef}>
         <primitive object={globeGltf.scene} scale={1} position={[0, 0, 0]} />
       </group>
-      <primitive
-        object={characterGltf.scene}
-        scale={0.5}
-        position={[0, 0.85, 0]}
-        rotation={[0, -Math.PI / 5, 0]}
-      />
       <Text
         position={[0, -1.5, 0]}
         fontSize={0.2}
@@ -129,7 +108,6 @@ const LoadingScreen = () => {
       <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[0, 5, 5]} intensity={1} />
-        <directionalLight position={[5, 5, 5]} intensity={1} />
         <Suspense fallback={null}>
           <RotatingGlobe />
         </Suspense>
