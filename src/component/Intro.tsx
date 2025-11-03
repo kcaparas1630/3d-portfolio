@@ -77,7 +77,7 @@ const Introduction = () => {
       <section className={styles["intro-banner"]}>
         <div className={styles["intro-content"]}>
           <h1>Kent Hudson Caparas</h1>
-          <p>Full-Stack Engineer | AI Enthusiast | Tech Junkie </p>
+          <h2>Full-Stack Engineer | AI Enthusiast | Tech Junkie </h2>
           <div className={styles["button-group"]}>
             <button onClick={handlePortfolioClick}>
               <div className={styles["button-inner-shadow"]}></div>

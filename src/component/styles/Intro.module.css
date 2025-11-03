@@ -19,8 +19,9 @@
     margin: 0;
 }
 
-.intro-banner p {
+.intro-banner h2 {
     font-size: 2rem;
+    font-weight: 600;
     margin: 10px 0 0 0;
 }
 
