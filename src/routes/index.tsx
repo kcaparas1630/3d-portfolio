@@ -1,33 +1,17 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
+import Introduction from '../component/intro'
+import { useGLTF } from '@react-three/drei'
 
 export const Route = createFileRoute('/')({
-  component: MainPage,
+  component: Introduction,
+  loader: async () => {
+    // Preload all models in the background while user reads intro
+    await Promise.all([
+      useGLTF.preload('/Background/Miniature-Globe_draco.glb'),
+      useGLTF.preload('/Character/Animations/Animation_Walking_withSkin_draco.glb'),
+      useGLTF.preload('/Character/Animations/Animation_Idle_02_withSkin_draco.glb'),
+      useGLTF.preload('/Character/Animations/Animation_Idle_03_withSkin_draco.glb'),
+    ]);
+    return null;
+  },
 })
-// TODO: REMOVE THIS AND USE A LANDING SCREEN 
-function MainPage() {
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const handleKeyPress = () => {
-      navigate({ to: '/app' })
-    }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [navigate])
-
-  return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#ADD1F5'
-    }}>
-      <h1>Press any key to start</h1>
-    </div>
-  )
-}
