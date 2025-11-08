@@ -353,6 +353,9 @@
         gap: 16px;
         margin-top: 40px;
     }
+    .button-group button {
+        max-width: 200px;
+    }
 
     .sound-toggle {
         width: 50px;
@@ -378,6 +381,9 @@
         flex-direction: row;
         gap: 16px;
         margin-top: 40px;
+    }
+    .button-group button {
+        max-width: 300px;
     }
 
     .sound-toggle {
