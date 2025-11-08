@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { AudioPlayer } from "../utils/AudioPlay";
-
+import { Volume2, VolumeX } from "lucide-react";
+import styles from "./styles/Intro.module.css";
 const Introduction = () => {
   const navigate = useNavigate();
   const musicPlayerRef = useRef<AudioPlayer | null>(null);
@@ -14,11 +15,19 @@ const Introduction = () => {
     );
 
     // Try autoplay and check if it succeeds
-    musicPlayerRef.current.play();
+    const playPromise = musicPlayerRef.current.play();
 
-    // play() returns undefined, but the AudioPlayer's play() catches errors internally
-    // We'll assume autoplay is blocked and let user click to enable
-    setIsMusicPlaying(false);
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          // Autoplay succeeded
+          setIsMusicPlaying(true);
+        })
+        .catch(() => {
+          // Autoplay blocked by browser
+          setIsMusicPlaying(false);
+        });
+    }
 
     // Cleanup: stop music when component unmounts
     return () => {
@@ -46,50 +55,55 @@ const Introduction = () => {
 
   return (
     <>
+      {/* Orientation warning for mobile portrait mode */}
+      <div className={styles["orientation-warning"]}>
+        <h2>Please Rotate Your Device</h2>
+        <p>This website is best viewed in landscape orientation.</p>
+      </div>
+
       {/* Sound toggle button - fixed in top right */}
       <button
         onClick={toggleMusic}
-        style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          zIndex: 1000,
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          border: '2px solid #353839',
-          backgroundColor: isMusicPlaying ? '#ADD1F5' : '#ffffff',
-          cursor: 'pointer',
-          fontSize: '24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.3s ease',
-        }}
-        title={isMusicPlaying ? 'Pause music' : 'Play music'}
+        className={styles["sound-toggle"]}
+        title={isMusicPlaying ? "Pause music" : "Play music"}
       >
-        {isMusicPlaying ? '🔊' : '🔇'}
+        {isMusicPlaying ? (
+          <Volume2 size={28} color="white" strokeWidth={2.5} />
+        ) : (
+          <VolumeX size={28} color="white" strokeWidth={2.5} />
+        )}
       </button>
 
-      <section
-        className="intro-banner"
-        style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#ADD1F5",
-        }}
-      >
-        <h1>Kent Hudson Caparas</h1>
-        <p>Full-Stack Engineer | AI Enthusiast | Tech Junkie </p>
-        <div style={{ display: 'flex', gap: '24px', marginTop: '24px' }}>
-          <button onClick={handlePortfolioClick}>Portfolio</button>
-          <button onClick={() => (window.location.href = "#contact")}>
-            Contact Me
-          </button>
+      <section className={styles["intro-banner"]}>
+        <div className={styles["intro-content"]}>
+          <h1>Kent Hudson Caparas</h1>
+          <h2>Full-Stack Engineer | AI Enthusiast | Tech Junkie </h2>
+          <div className={styles["button-group"]}>
+            <button onClick={handlePortfolioClick}>
+              <div className={styles["button-inner-shadow"]}></div>
+              <div className={styles["button-white-base"]}></div>
+              <div className={styles["button-top-container"]}>
+                <div className={styles["button-main"]}>
+                  <div className={styles["button-yellow-top"]}></div>
+                  <span className={styles["button-text"]} data-text="Portfolio">
+                    Portfolio
+                  </span>
+                </div>
+              </div>
+            </button>
+            <button onClick={() => (window.location.href = "#contact")}>
+              <div className={styles["button-inner-shadow"]}></div>
+              <div className={styles["button-white-base"]}></div>
+              <div className={styles["button-top-container"]}>
+                <div className={styles["button-main"]}>
+                  <div className={styles["button-yellow-top"]}></div>
+                  <span className={styles["button-text"]} data-text="Contact">
+                    Contact
+                  </span>
+                </div>
+              </div>
+            </button>
+          </div>
         </div>
       </section>
     </>

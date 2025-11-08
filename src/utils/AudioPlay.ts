@@ -7,11 +7,21 @@ export class AudioPlayer {
     this.audio.loop = loop;
   }
 
-  play() {
-    this.audio.play().catch((error) => {
-      console.error("Error playing audio:", error);
-    });
-    this.isPlaying = true;
+  play(): Promise<void> | undefined {
+    const playPromise = this.audio.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          this.isPlaying = true;
+        })
+        .catch((error) => {
+          console.error("Error playing audio:", error);
+          this.isPlaying = false;
+        });
+    }
+
+    return playPromise;
   }
 
   pause() {
