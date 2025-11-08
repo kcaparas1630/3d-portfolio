@@ -17,18 +17,26 @@
 .intro-banner h1 {
     font-size: 6rem;
     margin: 0;
+    animation: fadeInUp 1s ease-out;
+    animation-timing-function: cubic-bezier();
 }
 
 .intro-banner h2 {
     font-size: 2rem;
     font-weight: 600;
     margin: 10px 0 0 0;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 1s forwards;
+    animation-timing-function: cubic-bezier();
 }
 
 .button-group {
     display: flex;
     gap: 24px;
     margin-top: 60px;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 2s forwards;
+    animation-timing-function: cubic-bezier();
 }
 
 .button-group button {
@@ -360,5 +368,28 @@
 
     .intro-banner {
         display: none;
+    }
+}
+
+
+/* Keyframes for the Introduction Banner Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-20%);
+    }
+    70% {
+        transform: translateY(10%);
+    }
+    85% {
+        transform: translateY(-5%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
