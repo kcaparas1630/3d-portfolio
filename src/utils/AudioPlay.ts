@@ -7,7 +7,7 @@ export class AudioPlayer {
     this.audio.loop = loop;
   }
 
-  play() {
+  play(): Promise<void> | undefined {
     const playPromise = this.audio.play();
 
     if (playPromise !== undefined) {
