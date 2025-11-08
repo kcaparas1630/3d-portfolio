@@ -32,6 +32,8 @@
     display: flex;
     gap: 24px;
     margin-top: 60px;
+    width: 100%;
+    justify-content: center;
     opacity: 0;
     animation: fadeInUp 1s ease-out 2s forwards;
 }
@@ -39,7 +41,8 @@
 .button-group button {
     position: relative;
     background: #A776F5;
-    width: 160px;
+    width: 100%;
+    max-width: 350px;
     height: 80px;
     border-radius: 12px;
     border: none;
@@ -51,7 +54,7 @@
     position: absolute;
     border-radius: 12px;
     background: #4B25B2;
-    width: 160px;
+    width: 100%;
     height: 80px;
     z-index: -1;
     left: 0;
@@ -63,7 +66,7 @@
     position: absolute;
     border-radius: 12px;
     background: #041661;
-    width: 144px;
+    width: 90%;
     height: 64px;
     left: 0;
     right: 0;
@@ -79,7 +82,7 @@
 .button-inner-shadow {
     position: relative;
     background: rgba(4, 22, 97, 0.2);
-    width: 144px;
+    width: 90%;
     height: 64px;
     border-radius: 12px;
 }
@@ -88,7 +91,7 @@
     position: absolute;
     top: -0.1em;
     background: white;
-    width: 160px;
+    width: 100%;
     height: 80px;
     border-radius: 12px;
     margin: 0 auto;
@@ -182,7 +185,7 @@
 
 .button-text {
     align-self: center;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     text-align: center;
     font-family: 'Wheaton Capitals', sans-serif;
     font-weight: 900;
@@ -231,6 +234,11 @@
 .sound-toggle:active {
     transform: translateY(4px);
     box-shadow: 0 0 0 #C08000;
+}
+
+.sound-toggle:focus-visible {
+    outline: 3px solid #041661;
+    outline-offset: 4px;
 }
 
 /* Speaker icon container */
@@ -328,20 +336,44 @@
 }
 
 /* Responsive styles */
-@media (max-width: 768px) {
+/*  Mobile landscape adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
 
     .intro-content {
         margin-top: 50px;
     }
     .intro-banner h1 {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
-
-    .intro-banner p {
+    .intro-banner h2 {
         font-size: 1.2rem;
-        padding: 0 20px;
+    }
+    .button-group {
+        flex-direction: row;
+        gap: 16px;
+        margin-top: 40px;
     }
 
+    .sound-toggle {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        right: 15px;
+    }
+}
+
+/*  Tablet landscape adjustments */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+
+    .intro-content {
+        margin-top: 50px;
+    }
+    .intro-banner h1 {
+        font-size: 4rem;
+    }
+    .intro-banner h2 {
+        font-size: 1.6rem;
+    }   
     .button-group {
         flex-direction: row;
         gap: 16px;
@@ -357,7 +389,7 @@
 }
 
 /* Show orientation warning on mobile portrait mode */
-@media (max-width: 768px) and (orientation: portrait) {
+@media (max-width: 1366px) and (orientation: portrait) {
     .orientation-warning {
         display: flex;
     }
