@@ -1,12 +1,35 @@
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { useEffect, useRef, useState } from "react";
-import { AnimationMixer, AnimationAction, Group, Mesh, MeshStandardMaterial } from "three";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import {
+  AnimationMixer,
+  AnimationAction,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+} from "three";
+import {
+  RigidBody,
+  CapsuleCollider,
+  RapierRigidBody,
+} from "@react-three/rapier";
 
-const Model = () => {
-  const walkingGltf = useGLTF("/Character/Animations/Animation_Walking_withSkin_draco.glb");
-  const idleGltf = useGLTF("/Character/Animations/Animation_Idle_02_withSkin_draco.glb");
-  const secondIdleGltf = useGLTF("/Character/Animations/Animation_Idle_03_withSkin_draco.glb");
+const Model = forwardRef<Group>((_, ref) => {
+  const walkingGltf = useGLTF(
+    "/Character/Animations/Animation_Walking_withSkin_draco.glb"
+  );
+  const idleGltf = useGLTF(
+    "/Character/Animations/Animation_Idle_02_withSkin_draco.glb"
+  );
+  const secondIdleGltf = useGLTF(
+    "/Character/Animations/Animation_Idle_03_withSkin_draco.glb"
+  );
 
   const mixersRef = useRef<{
     idle1: AnimationMixer | null;
@@ -19,6 +42,7 @@ const Model = () => {
   });
 
   const groupRef = useRef<Group>(null);
+  const rigidBodyRef = useRef<RapierRigidBody>(null);
   const idle1Ref = useRef<Group>(null);
   const idle2Ref = useRef<Group>(null);
   const walkingRef = useRef<Group>(null);
@@ -41,6 +65,8 @@ const Model = () => {
   const currentActionRef = useRef<"idle1" | "idle2" | "walking">("idle1");
   const idleTimerRef = useRef<number>(0);
   const currentIdleRef = useRef<"idle1" | "idle2">("idle1");
+
+  useImperativeHandle(ref, () => groupRef.current as Group);
 
   useEffect(() => {
     // Setup mixers and actions for all animations
@@ -96,17 +122,27 @@ const Model = () => {
     if (walkingRef.current) walkingRef.current.visible = false;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp") setKeys((k) => ({ ...k, forward: true }));
-      if (e.key === "ArrowDown") setKeys((k) => ({ ...k, backward: true }));
-      if (e.key === "ArrowLeft") setKeys((k) => ({ ...k, left: true }));
-      if (e.key === "ArrowRight") setKeys((k) => ({ ...k, right: true }));
+      const key = e.key.toLowerCase();
+      if (e.key === "ArrowUp" || key === "w")
+        setKeys((k) => ({ ...k, forward: true }));
+      if (e.key === "ArrowDown" || key === "s")
+        setKeys((k) => ({ ...k, backward: true }));
+      if (e.key === "ArrowLeft" || key === "a")
+        setKeys((k) => ({ ...k, left: true }));
+      if (e.key === "ArrowRight" || key === "d")
+        setKeys((k) => ({ ...k, right: true }));
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp") setKeys((k) => ({ ...k, forward: false }));
-      if (e.key === "ArrowDown") setKeys((k) => ({ ...k, backward: false }));
-      if (e.key === "ArrowLeft") setKeys((k) => ({ ...k, left: false }));
-      if (e.key === "ArrowRight") setKeys((k) => ({ ...k, right: false }));
+      const key = e.key.toLowerCase();
+      if (e.key === "ArrowUp" || key === "w")
+        setKeys((k) => ({ ...k, forward: false }));
+      if (e.key === "ArrowDown" || key === "s")
+        setKeys((k) => ({ ...k, backward: false }));
+      if (e.key === "ArrowLeft" || key === "a")
+        setKeys((k) => ({ ...k, left: false }));
+      if (e.key === "ArrowRight" || key === "d")
+        setKeys((k) => ({ ...k, right: false }));
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -124,8 +160,8 @@ const Model = () => {
     mixersRef.current.idle2?.update(delta);
     mixersRef.current.walking?.update(delta);
 
-    if (groupRef.current) {
-      const moveSpeed = 2 * delta;
+    if (rigidBodyRef.current && groupRef.current) {
+      const moveSpeed = 2.5;
       const rotateSpeed = 3 * delta;
       const isMoving = keys.forward || keys.backward;
 
@@ -175,38 +211,63 @@ const Model = () => {
       }
 
       // Rotation
-      if (keys.left) groupRef.current.rotation.y -= rotateSpeed;
-      if (keys.right) groupRef.current.rotation.y += rotateSpeed;
+      if (keys.left) groupRef.current.rotation.y += rotateSpeed;
+      if (keys.right) groupRef.current.rotation.y -= rotateSpeed;
 
-      // Movement in the direction the character is facing
+      // Calculate velocity based on direction character is facing
+      const velocity = { x: 0, z: 0 };
+
       if (keys.forward) {
-        groupRef.current.position.x +=
-          Math.sin(groupRef.current.rotation.y) * moveSpeed;
-        groupRef.current.position.z +=
-          Math.cos(groupRef.current.rotation.y) * moveSpeed;
+        velocity.x += Math.sin(groupRef.current.rotation.y) * moveSpeed;
+        velocity.z += Math.cos(groupRef.current.rotation.y) * moveSpeed;
       }
       if (keys.backward) {
-        groupRef.current.position.x -=
-          Math.sin(groupRef.current.rotation.y) * moveSpeed;
-        groupRef.current.position.z -=
-          Math.cos(groupRef.current.rotation.y) * moveSpeed;
+        velocity.x -= Math.sin(groupRef.current.rotation.y) * moveSpeed;
+        velocity.z -= Math.cos(groupRef.current.rotation.y) * moveSpeed;
       }
+
+      // Apply velocity to the RigidBody with interpolation for smoother movement
+      const currentVel = rigidBodyRef.current.linvel();
+      const smoothingFactor = 0.15; // Lower value = smoother movement
+
+      rigidBodyRef.current.setLinvel(
+        {
+          x:
+            currentVel.x * (1 - smoothingFactor) + velocity.x * smoothingFactor,
+          y: currentVel.y, // Preserve gravity
+          z:
+            currentVel.z * (1 - smoothingFactor) + velocity.z * smoothingFactor,
+        },
+        true
+      );
+
+      // Lock rotation to prevent tipping
+      rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
     }
   });
 
   return (
-    <group ref={groupRef}>
-      <group ref={idle1Ref}>
-        <primitive object={idleGltf.scene} scale={1} />
+    <RigidBody
+      ref={rigidBodyRef}
+      type="dynamic"
+      colliders={false}
+      position={[0, 0, 0]}
+      enabledRotations={[false, false, false]} // Prevent physics rotation
+    >
+      <CapsuleCollider args={[0.75, 0.5]} position={[0, 1.2, 0]} />
+      <group ref={groupRef}>
+        <group ref={idle1Ref}>
+          <primitive object={idleGltf.scene} scale={0.8} />
+        </group>
+        <group ref={idle2Ref}>
+          <primitive object={secondIdleGltf.scene} scale={0.8} />
+        </group>
+        <group ref={walkingRef}>
+          <primitive object={walkingGltf.scene} scale={0.8} />
+        </group>
       </group>
-      <group ref={idle2Ref}>
-        <primitive object={secondIdleGltf.scene} scale={1} />
-      </group>
-      <group ref={walkingRef}>
-        <primitive object={walkingGltf.scene} scale={1} />
-      </group>
-    </group>
+    </RigidBody>
   );
-};
+});
 
 export default Model;
