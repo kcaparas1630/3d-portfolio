@@ -3,3 +3,107 @@
     height: 100vh;
     background-color: #ADD1F5;
 }
+
+/* Sound toggle button */
+.sound-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(180deg, #FCD425 0%, #FFB800 100%);
+    border: 4px solid #FFFFFF;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #C08000;
+    transition: all 0.1s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.sound-toggle:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #C08000;
+}
+
+.sound-toggle:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #C08000;
+}
+
+.sound-toggle:focus-visible {
+    outline: 3px solid #041661;
+    outline-offset: 4px;
+}
+
+/* Speaker icon container */
+.speaker-icon {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Speaker base rectangle */
+.speaker-base {
+    width: 8px;
+    height: 12px;
+    background: white;
+    border-radius: 2px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Speaker cone/triangle */
+.speaker-cone {
+    position: absolute;
+    left: 50%;
+    margin-left: -2px;
+    width: 0;
+    height: 0;
+    border-left: 10px solid white;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+}
+
+/* Sound waves (when playing) */
+.sound-waves {
+    position: absolute;
+    right: 2px;
+    display: flex;
+    gap: 4px;
+}
+
+.sound-wave {
+    width: 3px;
+    border: 2px solid white;
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+}
+
+.sound-wave:nth-child(1) {
+    height: 8px;
+}
+
+.sound-wave:nth-child(2) {
+    height: 12px;
+}
+
+.sound-wave:nth-child(3) {
+    height: 16px;
+}
+
+/* Muted state - X line */
+.sound-muted {
+    position: absolute;
+    width: 28px;
+    height: 3px;
+    background: white;
+    transform: rotate(45deg);
+    border-radius: 2px;
+}
