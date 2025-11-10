@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState, useCallback } from "react";
 import { Physics } from "@react-three/rapier";
 import { Sky } from "@react-three/drei";
 import { Group } from "three";
@@ -14,12 +14,18 @@ import WorldBoundaries from "../../models/background/WorldBoundaries";
 import Flowers from "../../models/background/Flowers";
 import { useMusicPlayer } from "../../hooks/useMusicPlayer";
 import { Volume2, VolumeX } from "lucide-react";
+import MobileJoystick from "../controls/MobileJoystick";
 
 const StartingPointCanvas = () => {
   const modelRef = useRef<Group>(null);
   const { isMusicPlaying, toggleMusic } = useMusicPlayer(
     "/music/little-slimex27s-adventure-151007.mp3"
   );
+  const [joystickInput, setJoystickInput] = useState({ x: 0, y: 0 });
+
+  const handleJoystickMove = useCallback((x: number, y: number) => {
+    setJoystickInput({ x, y });
+  }, []);
 
   return (
     <div className={styles["styled-view"]}>
@@ -62,7 +68,7 @@ const StartingPointCanvas = () => {
 
         <Physics gravity={[0, -9.81, 0]}>
           <Suspense fallback={null}>
-            <Model ref={modelRef} />
+            <Model ref={modelRef} joystickInput={joystickInput} />
 
             {/* Enhanced ground with shader */}
             <StylizedGround />
@@ -84,6 +90,9 @@ const StartingPointCanvas = () => {
 
         <CameraController targetRef={modelRef} />
       </Canvas>
+
+      {/* Mobile joystick overlay */}
+      <MobileJoystick onJoystickMove={handleJoystickMove} />
     </div>
   );
 };
