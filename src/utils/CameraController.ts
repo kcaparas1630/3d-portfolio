@@ -1,13 +1,14 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { Group, Vector3 } from "three";
+import { useMemo } from "react";
 
 const CameraController = ({ targetRef }: { targetRef: React.RefObject<Group | null> }) => {
   const { camera } = useThree();
+  const worldPosition = useMemo(() => new Vector3(), []);
 
   useFrame(() => {
     if (targetRef.current) {
       // Get world position of the group (which includes RigidBody's position)
-      const worldPosition = new Vector3();
       targetRef.current.getWorldPosition(worldPosition);
 
       // Camera follows character horizontally at waist height

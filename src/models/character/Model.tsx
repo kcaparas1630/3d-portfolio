@@ -254,7 +254,7 @@ const Model = forwardRef<Group>((_, ref) => {
       position={[0, 0, 0]}
       enabledRotations={[false, false, false]} // Prevent physics rotation
     >
-      <CapsuleCollider args={[0.75, 0.5]} position={[0, 1.2, 0]} />
+      <CapsuleCollider args={[0.5, 0.3]} position={[0, 0.75, 0]} />
       <group ref={groupRef}>
         <group ref={idle1Ref}>
           <primitive object={idleGltf.scene} scale={0.8} />

@@ -3,13 +3,12 @@ import { InstancedMesh, Object3D } from "three";
 import { useFrame } from "@react-three/fiber";
 
 // Grass component with instanced rendering
-const Grass = ({ count = 800 }) => {
+const Grass = ({ count = 800, worldSize = 40 }) => {
   const meshRef = useRef<InstancedMesh>(null);
   const dummy = useMemo(() => new Object3D(), []);
   
   const instances = useMemo(() => {
     const temp = [];
-    const worldSize = 40; // Match world boundaries
     for (let i = 0; i < count; i++) {
       temp.push({
         position: [
@@ -22,21 +21,26 @@ const Grass = ({ count = 800 }) => {
       });
     }
     return temp;
-  }, [count]);
+  }, [count, worldSize]);
   
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!meshRef.current) return;
+
+    // Update every 3rd frame (~20fps for wind animation)
+    if (state.clock.elapsedTime % (1/20) > delta) return;
+
     const time = state.clock.elapsedTime;
-    
-    instances.forEach((instance, i) => {
-      dummy.position.set(...instance.position as [number, number, number]);
+
+    for (let i = 0; i < instances.length; i++) {
+      const instance = instances[i];
+      dummy.position.set(instance.position[0], instance.position[1], instance.position[2]);
       dummy.scale.setScalar(instance.scale);
       // Add wind effect
       dummy.rotation.z = Math.sin(time * 2 + i) * 0.1;
       dummy.rotation.y = instance.rotation;
       dummy.updateMatrix();
-      meshRef.current!.setMatrixAt(i, dummy.matrix);
-    });
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
     meshRef.current.instanceMatrix.needsUpdate = true;
   });
   

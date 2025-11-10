@@ -10,7 +10,7 @@ const ProceduralTrees = ({ count = 50 }) => {
     
     // Generate tree positions with spacing
     for (let i = 0; i < count; i++) {
-      let position: [number, number, number];
+      let position: [number, number, number] | undefined;
       let valid = false;
       let attempts = 0;
       
@@ -43,9 +43,9 @@ const ProceduralTrees = ({ count = 50 }) => {
         attempts++;
       }
       
-      if (valid) {
+      if (valid && position) {
         temp.push({
-          position: position!,
+          position,
           scale: 0.8 + Math.random() * 0.4,
           rotation: Math.random() * Math.PI * 2,
           type: Math.random() > 0.3 ? 'pine' : 'round' // Two tree types

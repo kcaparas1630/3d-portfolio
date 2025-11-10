@@ -79,7 +79,7 @@ const StartingPointCanvas = () => {
         </Physics>
 
         {/* Non-physics decorative elements */}
-        <Grass count={600} />
+        <Grass count={600} worldSize={40} />
         <Flowers count={35} />
 
         <CameraController targetRef={modelRef} />
