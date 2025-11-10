@@ -28,72 +28,79 @@ const StartingPointCanvas = () => {
   }, []);
 
   return (
-    <div className={styles["styled-view"]}>
-      {/* Sound toggle button - fixed in top right */}
-      <button
-        onClick={toggleMusic}
-        className={styles["sound-toggle"]}
-        title={isMusicPlaying ? "Pause music" : "Play music"}
-      >
-        {isMusicPlaying ? (
-          <Volume2 size={28} color="white" strokeWidth={2.5} />
-        ) : (
-          <VolumeX size={28} color="white" strokeWidth={2.5} />
-        )}
-      </button>
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }} shadows>
-        {/* Sky and atmosphere */}
-        <Sky
-          distance={450000}
-          sunPosition={[5, 1, 8]}
-          inclination={0}
-          azimuth={0.25}
-        />
+    <>
+      {/* Orientation warning for mobile portrait mode */}
+      <div className={styles["orientation-warning"]}>
+        <h2>Please Rotate Your Device</h2>
+        <p>This website is best viewed in landscape orientation.</p>
+      </div>
+      <div className={styles["styled-view"]}>
+        {/* Sound toggle button - fixed in top right */}
+        <button
+          onClick={toggleMusic}
+          className={styles["sound-toggle"]}
+          title={isMusicPlaying ? "Pause music" : "Play music"}
+        >
+          {isMusicPlaying ? (
+            <Volume2 size={28} color="white" strokeWidth={2.5} />
+          ) : (
+            <VolumeX size={28} color="white" strokeWidth={2.5} />
+          )}
+        </button>
+        <Canvas camera={{ position: [0, 0, 5], fov: 50 }} shadows>
+          {/* Sky and atmosphere */}
+          <Sky
+            distance={450000}
+            sunPosition={[5, 1, 8]}
+            inclination={0}
+            azimuth={0.25}
+          />
 
-        {/* Fog for depth */}
-        <fog attach="fog" args={["#e0f4ff", 20, 45]} />
+          {/* Fog for depth */}
+          <fog attach="fog" args={["#e0f4ff", 20, 45]} />
 
-        {/* Enhanced lighting */}
-        <ambientLight intensity={0.4} />
-        <directionalLight
-          position={[5, 8, 5]}
-          intensity={0.8}
-          castShadow
-          shadow-mapSize={[2048, 2048]}
-          shadow-camera-left={-20}
-          shadow-camera-right={20}
-          shadow-camera-top={20}
-          shadow-camera-bottom={-20}
-        />
+          {/* Enhanced lighting */}
+          <ambientLight intensity={0.4} />
+          <directionalLight
+            position={[5, 8, 5]}
+            intensity={0.8}
+            castShadow
+            shadow-mapSize={[2048, 2048]}
+            shadow-camera-left={-20}
+            shadow-camera-right={20}
+            shadow-camera-top={20}
+            shadow-camera-bottom={-20}
+          />
 
-        <Physics gravity={[0, -9.81, 0]}>
-          <Suspense fallback={null}>
-            <Model ref={modelRef} joystickInput={joystickInput} />
+          <Physics gravity={[0, -9.81, 0]}>
+            <Suspense fallback={null}>
+              <Model ref={modelRef} joystickInput={joystickInput} />
 
-            {/* Enhanced ground with shader */}
-            <StylizedGround />
-          </Suspense>
+              {/* Enhanced ground with shader */}
+              <StylizedGround />
+            </Suspense>
 
-          {/* World boundaries - invisible walls */}
-          <WorldBoundaries size={40} />
+            {/* World boundaries - invisible walls */}
+            <WorldBoundaries size={40} />
 
-          {/* Procedurally generated trees */}
-          <ProceduralTrees count={50} />
+            {/* Procedurally generated trees */}
+            <ProceduralTrees count={50} />
 
-          {/* Rocks with physics */}
-          <Rocks count={25} />
-        </Physics>
+            {/* Rocks with physics */}
+            <Rocks count={25} />
+          </Physics>
 
-        {/* Non-physics decorative elements */}
-        <Grass count={600} worldSize={40} />
-        <Flowers count={35} />
+          {/* Non-physics decorative elements */}
+          <Grass count={600} worldSize={40} />
+          <Flowers count={35} />
 
-        <CameraController targetRef={modelRef} />
-      </Canvas>
+          <CameraController targetRef={modelRef} />
+        </Canvas>
 
-      {/* Mobile joystick overlay */}
-      <MobileJoystick onJoystickMove={handleJoystickMove} />
-    </div>
+        {/* Mobile joystick overlay */}
+        <MobileJoystick onJoystickMove={handleJoystickMove} />
+      </div>
+    </>
   );
 };
 
