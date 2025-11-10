@@ -1,0 +1,40 @@
+.styled-view {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ADD1F5;
+}
+
+/* Sound toggle button */
+.sound-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(180deg, #FCD425 0%, #FFB800 100%);
+    border: 4px solid #FFFFFF;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #C08000;
+    transition: all 0.1s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.sound-toggle:hover {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #C08000;
+}
+
+.sound-toggle:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #C08000;
+}
+
+.sound-toggle:focus-visible {
+    outline: 3px solid #041661;
+    outline-offset: 4px;
+}

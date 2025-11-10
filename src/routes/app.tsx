@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import App from '../App'
+import StartingPointCanvas from '../component/introductory-canvas/StartingPoint';
 import LoadingScreen from '../common/view/LoadingScreen'
 import { useGLTF } from '@react-three/drei'
 
 const MIN_LOADING_TIME = 5000; // 5 seconds
 
 export const Route = createFileRoute('/app')({
-  component: App,
+  component: StartingPointCanvas,
   pendingComponent: LoadingScreen,
   loader: async () => {
     const startTime = Date.now();
