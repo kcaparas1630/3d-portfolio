@@ -1,49 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { AudioPlayer } from "../../utils/AudioPlay";
 import { Volume2, VolumeX } from "lucide-react";
 import styles from "./styles/Intro.module.css";
+import { useMusicPlayer } from "../../hooks/useMusicPlayer";
 const Introduction = () => {
+  
   const navigate = useNavigate();
-  const musicPlayerRef = useRef<AudioPlayer | null>(null);
-  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-
-  useEffect(() => {
-    // Create audio player
-    musicPlayerRef.current = new AudioPlayer(
-      "/music/our-greatest-adventure-427782.mp3"
-    );
-
-    // Try autoplay and check if it succeeds
-    const playPromise = musicPlayerRef.current.play();
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          // Autoplay succeeded
-          setIsMusicPlaying(true);
-        })
-        .catch(() => {
-          // Autoplay blocked by browser
-          setIsMusicPlaying(false);
-        });
-    }
-
-    // Cleanup: stop music when component unmounts
-    return () => {
-      musicPlayerRef.current?.stop();
-    };
-  }, []);
-
-  const toggleMusic = () => {
-    if (isMusicPlaying) {
-      musicPlayerRef.current?.pause();
-      setIsMusicPlaying(false);
-    } else {
-      musicPlayerRef.current?.play();
-      setIsMusicPlaying(true);
-    }
-  };
+  const { isMusicPlaying, toggleMusic, musicPlayerRef } = useMusicPlayer("/music/our-greatest-adventure-427782.mp3")
 
   const handlePortfolioClick = () => {
     // Fade out music before navigating
