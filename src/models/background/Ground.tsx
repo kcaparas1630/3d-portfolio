@@ -29,8 +29,8 @@ const StylizedGround = () => {
               
               void main() {
                 // Base grass colors
-                vec3 grassColor1 = vec3(0.24, 0.55, 0.24);
-                vec3 grassColor2 = vec3(0.31, 0.47, 0.26);
+                vec3 grassColor1 = vec3(0.565, 0.698, 0.337);
+                vec3 grassColor2 = vec3(0.565, 0.698, 0.337);
                 vec3 dirtColor = vec3(0.4, 0.35, 0.25);
                 
                 // Create variation using noise
