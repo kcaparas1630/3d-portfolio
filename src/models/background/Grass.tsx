@@ -45,7 +45,7 @@ const Grass = ({ count = 800, worldSize = 40 }) => {
   });
   
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow frustumCulled={false}>
       <coneGeometry args={[0.05, 0.3, 3]} />
       <meshStandardMaterial color="#3d8b3d" />
     </instancedMesh>
