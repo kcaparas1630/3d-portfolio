@@ -11,11 +11,12 @@ export const Route = createFileRoute('/app')({
   loader: async () => {
     const startTime = Date.now();
 
-    // Preload all character models
+    // Preload all models
     await Promise.all([
       useGLTF.preload('/Character/Animations/Animation_Walking_withSkin_draco.glb'),
       useGLTF.preload('/Character/Animations/Animation_Idle_02_withSkin_draco.glb'),
       useGLTF.preload('/Character/Animations/Animation_Idle_03_withSkin_draco.glb'),
+      useGLTF.preload('/Background/cartoon_tree_1111232532_texture_draco.glb'),
     ]);
 
     // Ensure minimum loading time

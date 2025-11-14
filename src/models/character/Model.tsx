@@ -20,7 +20,11 @@ import {
   RapierRigidBody,
 } from "@react-three/rapier";
 
-const Model = forwardRef<Group>((_, ref) => {
+interface ModelProps {
+  joystickInput?: { x: number; y: number };
+}
+
+const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
   const walkingGltf = useGLTF(
     "/Character/Animations/Animation_Walking_withSkin_draco.glb"
   );
@@ -163,7 +167,12 @@ const Model = forwardRef<Group>((_, ref) => {
     if (rigidBodyRef.current && groupRef.current) {
       const moveSpeed = 2.5;
       const rotateSpeed = 3 * delta;
-      const isMoving = keys.forward || keys.backward;
+
+      // Check for movement from keyboard or joystick
+      const hasJoystickInput =
+        joystickInput &&
+        (Math.abs(joystickInput.x) > 0.1 || Math.abs(joystickInput.y) > 0.1);
+      const isMoving = keys.forward || keys.backward || hasJoystickInput;
 
       // Handle idle animation cycling every 5 seconds
       if (!isMoving) {
@@ -209,21 +218,36 @@ const Model = forwardRef<Group>((_, ref) => {
         currentIdleRef.current = "idle1";
         idleTimerRef.current = 0; // Reset timer to start fresh
       }
-
-      // Rotation
-      if (keys.left) groupRef.current.rotation.y += rotateSpeed;
-      if (keys.right) groupRef.current.rotation.y -= rotateSpeed;
-
-      // Calculate velocity based on direction character is facing
+      // Calculate velocity
       const velocity = { x: 0, z: 0 };
 
-      if (keys.forward) {
-        velocity.x += Math.sin(groupRef.current.rotation.y) * moveSpeed;
-        velocity.z += Math.cos(groupRef.current.rotation.y) * moveSpeed;
-      }
-      if (keys.backward) {
-        velocity.x -= Math.sin(groupRef.current.rotation.y) * moveSpeed;
-        velocity.z -= Math.cos(groupRef.current.rotation.y) * moveSpeed;
+      // Handle joystick input
+      if (hasJoystickInput && joystickInput) {
+        // Joystick controls: x for rotation, y for forward/backward
+        // Apply rotation based on horizontal joystick input (positive x = right turn)
+        groupRef.current.rotation.y -= joystickInput.x * rotateSpeed * 1.5;
+
+        // Move forward/backward based on vertical joystick input
+        if (Math.abs(joystickInput.y) > 0.1) {
+          velocity.x +=
+            Math.sin(groupRef.current.rotation.y) * moveSpeed * joystickInput.y;
+          velocity.z +=
+            Math.cos(groupRef.current.rotation.y) * moveSpeed * joystickInput.y;
+        }
+      } else {
+        // Rotation (relative to camera/viewer perspective)
+        if (keys.left) groupRef.current.rotation.y += rotateSpeed; // Positive rotation for left
+        if (keys.right) groupRef.current.rotation.y -= rotateSpeed; // Negative rotation for right
+
+        // Keyboard controls
+        if (keys.forward) {
+          velocity.x += Math.sin(groupRef.current.rotation.y) * moveSpeed;
+          velocity.z += Math.cos(groupRef.current.rotation.y) * moveSpeed;
+        }
+        if (keys.backward) {
+          velocity.x -= Math.sin(groupRef.current.rotation.y) * moveSpeed;
+          velocity.z -= Math.cos(groupRef.current.rotation.y) * moveSpeed;
+        }
       }
 
       // Apply velocity to the RigidBody with interpolation for smoother movement
