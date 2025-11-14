@@ -169,7 +169,9 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
       const rotateSpeed = 3 * delta;
 
       // Check for movement from keyboard or joystick
-      const hasJoystickInput = joystickInput && (Math.abs(joystickInput.x) > 0.1 || Math.abs(joystickInput.y) > 0.1);
+      const hasJoystickInput =
+        joystickInput &&
+        (Math.abs(joystickInput.x) > 0.1 || Math.abs(joystickInput.y) > 0.1);
       const isMoving = keys.forward || keys.backward || hasJoystickInput;
 
       // Handle idle animation cycling every 5 seconds
@@ -216,11 +218,6 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
         currentIdleRef.current = "idle1";
         idleTimerRef.current = 0; // Reset timer to start fresh
       }
-
-      // Rotation (relative to camera/viewer perspective)
-      if (keys.left) groupRef.current.rotation.y += rotateSpeed; // Positive rotation for left
-      if (keys.right) groupRef.current.rotation.y -= rotateSpeed; // Negative rotation for right
-
       // Calculate velocity
       const velocity = { x: 0, z: 0 };
 
@@ -232,10 +229,16 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
 
         // Move forward/backward based on vertical joystick input
         if (Math.abs(joystickInput.y) > 0.1) {
-          velocity.x += Math.sin(groupRef.current.rotation.y) * moveSpeed * joystickInput.y;
-          velocity.z += Math.cos(groupRef.current.rotation.y) * moveSpeed * joystickInput.y;
+          velocity.x +=
+            Math.sin(groupRef.current.rotation.y) * moveSpeed * joystickInput.y;
+          velocity.z +=
+            Math.cos(groupRef.current.rotation.y) * moveSpeed * joystickInput.y;
         }
       } else {
+        // Rotation (relative to camera/viewer perspective)
+        if (keys.left) groupRef.current.rotation.y += rotateSpeed; // Positive rotation for left
+        if (keys.right) groupRef.current.rotation.y -= rotateSpeed; // Negative rotation for right
+
         // Keyboard controls
         if (keys.forward) {
           velocity.x += Math.sin(groupRef.current.rotation.y) * moveSpeed;

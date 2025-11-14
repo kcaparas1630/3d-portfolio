@@ -41,7 +41,7 @@ const MobileJoystick = ({ onJoystickMove }: MobileJoystickProps) => {
     const rect = joystickBaseRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const maxDistance = rect.width / 2;
+    const maxDistance = Math.min(rect.width, rect.height) / 2;
 
     const newState = calculateJoystickState(
       centerX,

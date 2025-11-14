@@ -16,7 +16,7 @@ export const Route = createFileRoute('/app')({
       useGLTF.preload('/Character/Animations/Animation_Walking_withSkin_draco.glb'),
       useGLTF.preload('/Character/Animations/Animation_Idle_02_withSkin_draco.glb'),
       useGLTF.preload('/Character/Animations/Animation_Idle_03_withSkin_draco.glb'),
-      useGLTF.preload('/background/cartoon_tree_1111232532_texture_draco.glb'),
+      useGLTF.preload('/Background/cartoon_tree_1111232532_texture_draco.glb'),
     ]);
 
     // Ensure minimum loading time

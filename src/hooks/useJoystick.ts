@@ -30,15 +30,12 @@ export const useJoystick = () => {
 
     // Listen for orientation and resize changes
     window.addEventListener("resize", checkDevice);
-    window
-      .matchMedia("(orientation: landscape)")
-      .addEventListener("change", checkDevice);
+    const mediaQueryList = window.matchMedia("(orientation: landscape)");
+    mediaQueryList.addEventListener("change", checkDevice);
 
     return () => {
       window.removeEventListener("resize", checkDevice);
-      window
-        .matchMedia("(orientation: landscape)")
-        .removeEventListener("change", checkDevice);
+      mediaQueryList.removeEventListener("change", checkDevice);
     };
   }, []);
 
