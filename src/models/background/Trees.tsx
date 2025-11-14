@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { RigidBody } from "@react-three/rapier";
 import { useGLTF } from "@react-three/drei";
+import { Mesh } from "three";
 
 // Trees using GLTF model with random positioning
 const ProceduralTrees = ({ count = 50 }) => {
@@ -60,13 +61,22 @@ const ProceduralTrees = ({ count = 50 }) => {
 
   return (
     <>
-      {trees.map((tree, i) => (
-        <RigidBody key={i} type="fixed" position={tree.position}>
-          <group scale={tree.scale} rotation={[0, tree.rotation, 0]}>
-            <primitive object={scene.clone()} castShadow />
-          </group>
-        </RigidBody>
-      ))}
+      {trees.map((tree, i) => {
+        const clonedScene = scene.clone();
+        clonedScene.traverse((child) => {
+          if (child instanceof Mesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+        return (
+          <RigidBody key={i} type="fixed" position={tree.position}>
+            <group scale={tree.scale} rotation={[0, tree.rotation, 0]}>
+              <primitive object={clonedScene} />
+            </group>
+          </RigidBody>
+        );
+      })}
     </>
   );
 };
