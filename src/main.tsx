@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import './index.css'
 import { routeTree } from './routeTree.gen'
 import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals'
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // Monitor Web Vitals
 onCLS(console.log)
@@ -25,5 +26,6 @@ declare module '@tanstack/react-router' {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <RouterProvider router={router} />
+    <SpeedInsights />
   </StrictMode>,
 )
