@@ -8,9 +8,6 @@ export const Route = createFileRoute('/')({
     // Preload all models in the background while user reads intro
     await Promise.all([
       useGLTF.preload('/Background/Miniature-Globe_draco.glb'),
-      useGLTF.preload('/Character/Animations/Animation_Walking_withSkin_draco.glb'),
-      useGLTF.preload('/Character/Animations/Animation_Idle_02_withSkin_draco.glb'),
-      useGLTF.preload('/Character/Animations/Animation_Idle_03_withSkin_draco.glb'),
     ]);
     return null;
   },
