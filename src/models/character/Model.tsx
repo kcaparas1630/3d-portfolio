@@ -13,62 +13,84 @@ import {
   Group,
   Mesh,
   MeshStandardMaterial,
+  LoopOnce,
 } from "three";
 import {
   RigidBody,
   CapsuleCollider,
   RapierRigidBody,
 } from "@react-three/rapier";
+import { ANIMATION_MAP } from "../../constants/animations";
+
+type AnimationType =
+  | "idle1"
+  | "idle2"
+  | "walkingForward"
+  | "walkingBackward"
+  | "jump";
 
 interface ModelProps {
   joystickInput?: { x: number; y: number };
 }
 
 const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
-  const walkingGltf = useGLTF(
-    "/Character/Animations/Animation_Walking_withSkin_draco.glb"
-  );
-  const idleGltf = useGLTF(
-    "/Character/Animations/Animation_Idle_02_withSkin_draco.glb"
-  );
-  const secondIdleGltf = useGLTF(
-    "/Character/Animations/Animation_Idle_03_withSkin_draco.glb"
-  );
+  // Load animations using the animation map
+  const walkingForwardGltf = useGLTF(ANIMATION_MAP.walkingForward);
+  const walkingBackwardGltf = useGLTF(ANIMATION_MAP.walkingBackward);
+  const idleGltf = useGLTF(ANIMATION_MAP.idle1);
+  const secondIdleGltf = useGLTF(ANIMATION_MAP.idle2);
+  const jumpGltf = useGLTF(ANIMATION_MAP.jump);
 
   const mixersRef = useRef<{
     idle1: AnimationMixer | null;
     idle2: AnimationMixer | null;
-    walking: AnimationMixer | null;
+    walkingForward: AnimationMixer | null;
+    walkingBackward: AnimationMixer | null;
+    jump: AnimationMixer | null;
   }>({
     idle1: null,
     idle2: null,
-    walking: null,
+    walkingForward: null,
+    walkingBackward: null,
+    jump: null,
   });
 
   const groupRef = useRef<Group>(null);
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const idle1Ref = useRef<Group>(null);
   const idle2Ref = useRef<Group>(null);
-  const walkingRef = useRef<Group>(null);
+  const walkingForwardRef = useRef<Group>(null);
+  const walkingBackwardRef = useRef<Group>(null);
+  const jumpRef = useRef<Group>(null);
 
   const [keys, setKeys] = useState({
     forward: false,
     backward: false,
     left: false,
     right: false,
+    jump: false,
   });
+  
   const actionsRef = useRef<{
     idle1: AnimationAction | null;
     idle2: AnimationAction | null;
-    walking: AnimationAction | null;
+    walkingForward: AnimationAction | null;
+    walkingBackward: AnimationAction | null;
+    jump: AnimationAction | null;
   }>({
     idle1: null,
     idle2: null,
-    walking: null,
+    walkingForward: null,
+    walkingBackward: null,
+    jump: null,
   });
-  const currentActionRef = useRef<"idle1" | "idle2" | "walking">("idle1");
+  
+  const currentActionRef = useRef<AnimationType>("idle1");
   const idleTimerRef = useRef<number>(0);
   const currentIdleRef = useRef<"idle1" | "idle2">("idle1");
+  const isGroundedRef = useRef<boolean>(true);
+  const isJumpingRef = useRef<boolean>(false);
+  const hasJumpedRef = useRef<boolean>(false);
 
   useImperativeHandle(ref, () => groupRef.current as Group);
 
@@ -76,7 +98,9 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
     // Setup mixers and actions for all animations
     mixersRef.current.idle1 = new AnimationMixer(idleGltf.scene);
     mixersRef.current.idle2 = new AnimationMixer(secondIdleGltf.scene);
-    mixersRef.current.walking = new AnimationMixer(walkingGltf.scene);
+    mixersRef.current.walkingForward = new AnimationMixer(walkingForwardGltf.scene);
+    mixersRef.current.walkingBackward = new AnimationMixer(walkingBackwardGltf.scene);
+    mixersRef.current.jump = new AnimationMixer(jumpGltf.scene);
 
     if (idleGltf.animations && idleGltf.animations.length > 0) {
       actionsRef.current.idle1 = mixersRef.current.idle1.clipAction(
@@ -91,10 +115,33 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
       );
     }
 
-    if (walkingGltf.animations && walkingGltf.animations.length > 0) {
-      actionsRef.current.walking = mixersRef.current.walking.clipAction(
-        walkingGltf.animations[0]
+    if (walkingForwardGltf.animations && walkingForwardGltf.animations.length > 0) {
+      actionsRef.current.walkingForward = mixersRef.current.walkingForward.clipAction(
+        walkingForwardGltf.animations[0]
       );
+    }
+    
+    if (walkingBackwardGltf.animations && walkingBackwardGltf.animations.length > 0) {
+      actionsRef.current.walkingBackward = mixersRef.current.walkingBackward.clipAction(
+        walkingBackwardGltf.animations[0]
+      );
+    }
+
+    // Create finished handler function outside the conditional
+    const finishedHandler = () => {
+      isJumpingRef.current = false;
+    };
+
+    if (jumpGltf.animations && jumpGltf.animations.length > 0) {
+      actionsRef.current.jump = mixersRef.current.jump.clipAction(
+        jumpGltf.animations[0]
+      );
+      // Configure jump animation to play once and not loop
+      actionsRef.current.jump.setLoop(LoopOnce, 1);
+      actionsRef.current.jump.clampWhenFinished = true;
+      
+      // Add event listener for when jump animation finishes
+      mixersRef.current.jump.addEventListener('finished', finishedHandler);
     }
 
     // Fix material properties for all models
@@ -120,12 +167,16 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
 
     fixMaterials(idleGltf.scene);
     fixMaterials(secondIdleGltf.scene);
-    fixMaterials(walkingGltf.scene);
+    fixMaterials(walkingForwardGltf.scene);
+    fixMaterials(walkingBackwardGltf.scene);
+    fixMaterials(jumpGltf.scene);
 
     // Set initial visibility
     if (idle1Ref.current) idle1Ref.current.visible = true;
     if (idle2Ref.current) idle2Ref.current.visible = false;
-    if (walkingRef.current) walkingRef.current.visible = false;
+    if (walkingForwardRef.current) walkingForwardRef.current.visible = false;
+    if (walkingBackwardRef.current) walkingBackwardRef.current.visible = false;
+    if (jumpRef.current) jumpRef.current.visible = false;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
@@ -137,6 +188,11 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
         setKeys((k) => ({ ...k, left: true }));
       if (e.key === "ArrowRight" || key === "d")
         setKeys((k) => ({ ...k, right: true }));
+      // Only set jump to true if not already jumping and grounded
+      if (key === " " && !e.repeat && isGroundedRef.current && !isJumpingRef.current && !hasJumpedRef.current) {
+        setKeys((k) => ({ ...k, jump: true }));
+        hasJumpedRef.current = true;
+      }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -149,77 +205,131 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
         setKeys((k) => ({ ...k, left: false }));
       if (e.key === "ArrowRight" || key === "d")
         setKeys((k) => ({ ...k, right: false }));
+      if (key === " ") {
+        setKeys((k) => ({ ...k, jump: false }));
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
+    // Capture the jump mixer for cleanup
+    const jumpMixer = mixersRef.current.jump;
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      
+      // Clean up event listener with captured reference and same handler
+      if (jumpMixer) {
+        jumpMixer.removeEventListener('finished', finishedHandler);
+      }
     };
-  }, [walkingGltf, idleGltf, secondIdleGltf]);
+  }, [walkingForwardGltf, walkingBackwardGltf, idleGltf, secondIdleGltf, jumpGltf]);
 
   useFrame((_state, delta) => {
     // Update all mixers
     mixersRef.current.idle1?.update(delta);
     mixersRef.current.idle2?.update(delta);
-    mixersRef.current.walking?.update(delta);
+    mixersRef.current.walkingForward?.update(delta);
+    mixersRef.current.walkingBackward?.update(delta);
+    mixersRef.current.jump?.update(delta);
 
     if (rigidBodyRef.current && groupRef.current) {
       const moveSpeed = 2.5;
-      const rotateSpeed = 3 * delta;
+      const rotateSpeed = 2 * delta;
 
       // Check for movement from keyboard or joystick
       const hasJoystickInput =
         joystickInput &&
         (Math.abs(joystickInput.x) > 0.1 || Math.abs(joystickInput.y) > 0.1);
-      const isMoving = keys.forward || keys.backward || hasJoystickInput;
 
-      // Handle idle animation cycling every 5 seconds
-      if (!isMoving) {
+      // Movement state detection for keyboard
+      const isMovingForward = keys.forward;
+      const isMovingBackward = keys.backward;
+
+      // Movement state detection for joystick
+      const isMoving = keys.forward || keys.backward || hasJoystickInput;
+      
+      // Check if grounded
+      const currentVel = rigidBodyRef.current.linvel();
+      isGroundedRef.current = Math.abs(currentVel.y) < 0.1;
+      
+      // Reset hasJumpedRef when grounded
+      if (isGroundedRef.current && !isJumpingRef.current) {
+        hasJumpedRef.current = false;
+      }
+
+      // Determine current animation state
+      let targetAction: AnimationType = "idle1";
+
+      // Jump takes priority over other animations
+      if (isJumpingRef.current) {
+        targetAction = "jump";
+        idleTimerRef.current = 0; // Reset idle timer during jump
+      } else if (!isMoving) {
+        // Handle idle animation cycling every 5 seconds
         idleTimerRef.current += delta;
 
         if (idleTimerRef.current >= 5) {
           idleTimerRef.current = 0;
-
-          // Switch to the other idle animation
-          if (currentIdleRef.current === "idle1") {
-            // Switch to idle2
-            if (idle1Ref.current) idle1Ref.current.visible = false;
-            if (idle2Ref.current) idle2Ref.current.visible = true;
-            actionsRef.current.idle2?.reset().play();
-            currentIdleRef.current = "idle2";
-            currentActionRef.current = "idle2";
-          } else {
-            // Switch back to idle1
-            if (idle2Ref.current) idle2Ref.current.visible = false;
-            if (idle1Ref.current) idle1Ref.current.visible = true;
-            actionsRef.current.idle1?.reset().play();
-            currentIdleRef.current = "idle1";
-            currentActionRef.current = "idle1";
-          }
+          currentIdleRef.current =
+            currentIdleRef.current === "idle1" ? "idle2" : "idle1";
+        }
+        targetAction = currentIdleRef.current;
+      } else {
+        idleTimerRef.current = 0; // Reset idle timer when moving
+        if (isMovingForward || (hasJoystickInput && joystickInput!.y > 0.1)) {
+          targetAction = "walkingForward";
+        } else if (isMovingBackward || (hasJoystickInput && joystickInput!.y < -0.1)) {
+          targetAction = "walkingBackward";
         }
       }
 
-      // Switch between idle and walking animations
-      if (isMoving && currentActionRef.current !== "walking") {
-        // Switch to walking
+      // Switch animations if needed
+      if (currentActionRef.current !== targetAction) {
+        // Stop current action
+        const currentAction = actionsRef.current[currentActionRef.current];
+        if (currentAction && currentActionRef.current !== "jump") {
+          currentAction.stop();
+        }
+
+        // Hide all animation models
         if (idle1Ref.current) idle1Ref.current.visible = false;
         if (idle2Ref.current) idle2Ref.current.visible = false;
-        if (walkingRef.current) walkingRef.current.visible = true;
-        actionsRef.current.walking?.reset().play();
-        currentActionRef.current = "walking";
-        idleTimerRef.current = 0; // Reset timer
-      } else if (!isMoving && currentActionRef.current === "walking") {
-        // Always return to idle1 after walking
-        if (walkingRef.current) walkingRef.current.visible = false;
-        if (idle1Ref.current) idle1Ref.current.visible = true;
-        actionsRef.current.idle1?.reset().play();
-        currentActionRef.current = "idle1";
-        currentIdleRef.current = "idle1";
-        idleTimerRef.current = 0; // Reset timer to start fresh
+        if (walkingForwardRef.current) walkingForwardRef.current.visible = false;
+        if (walkingBackwardRef.current) walkingBackwardRef.current.visible = false;
+        if (jumpRef.current) jumpRef.current.visible = false;
+
+        // Show and play the target animation
+        switch (targetAction) {
+          case "idle1":
+            if (idle1Ref.current) idle1Ref.current.visible = true;
+            actionsRef.current.idle1?.reset().play();
+            currentIdleRef.current = "idle1";
+            break;
+          case "idle2":
+            if (idle2Ref.current) idle2Ref.current.visible = true;
+            actionsRef.current.idle2?.reset().play();
+            currentIdleRef.current = "idle2";
+            break;
+          case "walkingForward":
+            if (walkingForwardRef.current) walkingForwardRef.current.visible = true;
+            actionsRef.current.walkingForward?.reset().play();
+            break;
+          case "walkingBackward":
+            if (walkingBackwardRef.current) walkingBackwardRef.current.visible = true;
+            actionsRef.current.walkingBackward?.reset().play();
+            break;
+          case "jump":
+            if (jumpRef.current) jumpRef.current.visible = true;
+            actionsRef.current.jump?.reset().play();
+            break;
+        }
+
+        currentActionRef.current = targetAction;
       }
+      
       // Calculate velocity
       const velocity = { x: 0, z: 0 };
 
@@ -253,14 +363,22 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
       }
 
       // Apply velocity to the RigidBody with interpolation for smoother movement
-      const currentVel = rigidBodyRef.current.linvel();
       const smoothingFactor = 0.15; // Lower value = smoother movement
+      let newYVel = currentVel.y; // Preserve gravity by default
+
+      // Handle jumping - trigger once per press when grounded
+      if (keys.jump && isGroundedRef.current && !isJumpingRef.current) {
+        newYVel = 4; // Jump force
+        isJumpingRef.current = true;
+        // Immediately reset jump flag
+        setKeys((k) => ({ ...k, jump: false }));
+      }
 
       rigidBodyRef.current.setLinvel(
         {
           x:
             currentVel.x * (1 - smoothingFactor) + velocity.x * smoothingFactor,
-          y: currentVel.y, // Preserve gravity
+          y: newYVel, // Use jump velocity or preserve gravity
           z:
             currentVel.z * (1 - smoothingFactor) + velocity.z * smoothingFactor,
         },
@@ -288,8 +406,14 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
         <group ref={idle2Ref}>
           <primitive object={secondIdleGltf.scene} scale={0.8} />
         </group>
-        <group ref={walkingRef}>
-          <primitive object={walkingGltf.scene} scale={0.8} />
+        <group ref={walkingForwardRef}>
+          <primitive object={walkingForwardGltf.scene} scale={0.8} />
+        </group>
+        <group ref={walkingBackwardRef}>
+          <primitive object={walkingBackwardGltf.scene} scale={0.8} />
+        </group>
+        <group ref={jumpRef}>
+          <primitive object={jumpGltf.scene} scale={0.8} />
         </group>
       </group>
     </RigidBody>
