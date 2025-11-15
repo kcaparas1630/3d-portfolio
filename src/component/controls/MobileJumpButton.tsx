@@ -1,3 +1,4 @@
+import type { TouchEvent } from "react";
 import { useJoystick } from "../../hooks/useJoystick";
 import styles from "./styles/MobileJumpButton.module.css";
 
@@ -8,7 +9,7 @@ interface MobileJumpButtonProps {
 const MobileJumpButton = ({ onJump }: MobileJumpButtonProps) => {
   const { showJoystick } = useJoystick();
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: TouchEvent<HTMLButtonElement>) => {
     e.preventDefault();
     onJump();
   };
@@ -21,6 +22,7 @@ const MobileJumpButton = ({ onJump }: MobileJumpButtonProps) => {
         className={styles.button}
         onTouchStart={handleTouchStart}
         type="button"
+        aria-label="Jump"
       >
         X
       </button>
