@@ -102,6 +102,8 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
       model.traverse((child) => {
         if ((child as Mesh).isMesh) {
           const mesh = child as Mesh;
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
           if (mesh.material) {
             const material = mesh.material as MeshStandardMaterial;
             if (material.emissive) {

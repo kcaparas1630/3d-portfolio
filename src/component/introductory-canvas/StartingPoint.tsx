@@ -47,7 +47,7 @@ const StartingPointCanvas = () => {
             <VolumeX size={28} color="white" strokeWidth={2.5} />
           )}
         </button>
-        <Canvas camera={{ position: [0, 0, 5], fov: 50 }} shadows>
+        <Canvas camera={{ position: [0, 1, 5], fov: 50, near: 0.1, far: 1000 }} shadows>
           {/* Sky and atmosphere */}
           <Sky
             distance={450000}
