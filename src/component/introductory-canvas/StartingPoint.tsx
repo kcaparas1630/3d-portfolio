@@ -15,6 +15,7 @@ import Flowers from "../../models/background/Flowers";
 import { useMusicPlayer } from "../../hooks/useMusicPlayer";
 import { Volume2, VolumeX } from "lucide-react";
 import MobileJoystick from "../controls/MobileJoystick";
+import MobileJumpButton from "../controls/MobileJumpButton";
 
 const StartingPointCanvas = () => {
   const modelRef = useRef<Group>(null);
@@ -22,9 +23,14 @@ const StartingPointCanvas = () => {
     "/music/little-slimex27s-adventure-151007.mp3"
   );
   const [joystickInput, setJoystickInput] = useState({ x: 0, y: 0 });
+  const [jumpTrigger, setJumpTrigger] = useState(0);
 
   const handleJoystickMove = useCallback((x: number, y: number) => {
     setJoystickInput({ x, y });
+  }, []);
+
+  const handleJump = useCallback(() => {
+    setJumpTrigger((prev) => prev + 1);
   }, []);
 
   return (
@@ -74,7 +80,7 @@ const StartingPointCanvas = () => {
 
           <Physics gravity={[0, -9.81, 0]}>
             <Suspense fallback={null}>
-              <Model ref={modelRef} joystickInput={joystickInput} />
+              <Model ref={modelRef} joystickInput={joystickInput} jumpTrigger={jumpTrigger} />
 
               {/* Enhanced ground with shader */}
               <StylizedGround />
@@ -97,8 +103,9 @@ const StartingPointCanvas = () => {
           <CameraController targetRef={modelRef} />
         </Canvas>
 
-        {/* Mobile joystick overlay */}
+        {/* Mobile controls overlay */}
         <MobileJoystick onJoystickMove={handleJoystickMove} />
+        <MobileJumpButton onJump={handleJump} />
       </div>
     </>
   );

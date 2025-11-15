@@ -31,9 +31,10 @@ type AnimationType =
 
 interface ModelProps {
   joystickInput?: { x: number; y: number };
+  jumpTrigger?: number;
 }
 
-const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
+const Model = forwardRef<Group, ModelProps>(({ joystickInput, jumpTrigger }, ref) => {
   // Load animations using the animation map
   const walkingForwardGltf = useGLTF(ANIMATION_MAP.walkingForward);
   const walkingBackwardGltf = useGLTF(ANIMATION_MAP.walkingBackward);
@@ -93,6 +94,14 @@ const Model = forwardRef<Group, ModelProps>(({ joystickInput }, ref) => {
   const hasJumpedRef = useRef<boolean>(false);
 
   useImperativeHandle(ref, () => groupRef.current as Group);
+
+  // Handle mobile jump trigger
+  useEffect(() => {
+    if (jumpTrigger && jumpTrigger > 0 && isGroundedRef.current && !isJumpingRef.current && !hasJumpedRef.current) {
+      setKeys((k) => ({ ...k, jump: true }));
+      hasJumpedRef.current = true;
+    }
+  }, [jumpTrigger]);
 
   useEffect(() => {
     // Setup mixers and actions for all animations
