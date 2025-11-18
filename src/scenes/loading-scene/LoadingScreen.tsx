@@ -1,12 +1,15 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { useGLTF, Text } from "@react-three/drei";
-import { useRef, useEffect, useState, Suspense } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Group, Mesh, MeshStandardMaterial } from "three";
 
+interface SceneProps {
+  onSceneChange: (newScene: "loading" | "starting-point") => Promise<void>;
+  isTransitioning: boolean;
+}
+
 const RotatingGlobe = () => {
-  const globeGltf = useGLTF(
-    "/Background/Miniature-Globe_draco.glb"
-  );
+  const globeGltf = useGLTF("/Background/Miniature-Globe_draco.glb");
   const groupRef = useRef<Group>(null);
   const [dots, setDots] = useState("");
 
@@ -30,7 +33,6 @@ const RotatingGlobe = () => {
       });
     };
     fixMaterials(globeGltf.scene);
-
   }, [globeGltf]);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ const RotatingGlobe = () => {
 
   useFrame((_state, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.5; // Clockwise rotation
+      groupRef.current.rotation.y += delta * 0.5;
     }
   });
 
@@ -65,58 +67,28 @@ const RotatingGlobe = () => {
   );
 };
 
-const SimpleFallback = () => {
-  const [dots, setDots] = useState("");
-
+const LoadingScene: React.FC<SceneProps> = ({ onSceneChange }) => {
+  // Auto-transition to starting point after loading
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+    const timer = setTimeout(() => {
+      onSceneChange("starting-point");
+    }, 5000); // 5 second loading time
+    return () => clearTimeout(timer);
+  }, [onSceneChange]);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        textAlign: "center",
-        fontFamily: "'Wheaton Capitals', sans-serif",
-        fontSize: "2rem",
-        color: "#353839",
-      }}
-    >
-      ENTERING WORLD{dots}
-    </div>
+    <>
+      {/* Set background color */}
+      <color attach="background" args={['#ADD1F5']} />
+      
+      {/* Lighting */}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[0, 5, 5]} intensity={1} />
+      
+      {/* The rotating globe */}
+      <RotatingGlobe />
+    </>
   );
 };
 
-const LoadingScreen = () => {
-  return (
-    <div
-      style={{
-        backgroundColor: "#ADD1F5",
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[0, 5, 5]} intensity={1} />
-        <Suspense fallback={null}>
-          <RotatingGlobe />
-        </Suspense>
-      </Canvas>
-      <Suspense fallback={<SimpleFallback />}>
-        {null}
-      </Suspense>
-    </div>
-  );
-};
-
-export default LoadingScreen;
+export default LoadingScene;

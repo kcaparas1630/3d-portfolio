@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Introduction from '../component/menu/Intro'
+import Introduction from '../scenes/menu/Intro'
 import { useGLTF } from '@react-three/drei'
 
 export const Route = createFileRoute('/')({
