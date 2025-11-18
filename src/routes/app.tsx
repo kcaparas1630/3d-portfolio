@@ -1,15 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import StartingPointCanvas from '../component/introductory-canvas/StartingPoint';
-import LoadingScreen from '../common/view/LoadingScreen'
 import { useGLTF } from '@react-three/drei'
 import { ANIMATION_MAP } from '../constants/animations';
+import SceneManager from '../component/canvas/SceneManager';
 
 const MIN_LOADING_TIME = 5000; // 5 seconds
 
+interface LoaderData {
+  preloaded: boolean;
+}
+
 export const Route = createFileRoute('/app')({
-  component: StartingPointCanvas,
-  pendingComponent: LoadingScreen,
-  loader: async () => {
+  component: SceneManager,
+  loader: async (): Promise<LoaderData> => {
     const startTime = Date.now();
 
     // Preload all models using animation map
@@ -24,7 +26,10 @@ export const Route = createFileRoute('/app')({
     if (elapsed < MIN_LOADING_TIME) {
       await new Promise(resolve => setTimeout(resolve, MIN_LOADING_TIME - elapsed));
     }
+    // Small additional delay for screen's context is fully released.
+    await new Promise(resolve => setTimeout(resolve, 150));
 
-    return null;
+
+    return { preloaded: true};
   },
 })

@@ -3,7 +3,7 @@ import { Volume2, VolumeX } from "lucide-react";
 import styles from "./styles/Intro.module.css";
 import { useMusicPlayer } from "../../hooks/useMusicPlayer";
 const Introduction = () => {
-  
+
   const navigate = useNavigate();
   const { isMusicPlaying, toggleMusic, musicPlayerRef } = useMusicPlayer("/music/our-greatest-adventure-427782.mp3")
 
