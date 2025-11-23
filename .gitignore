@@ -30,3 +30,26 @@ lighthouse-dev-report.html
 
 # TanStack Router
 routeTree.gen.ts
+
+# Python
+backend/venv/
+backend/.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Environment files
+.env
+backend/.env
